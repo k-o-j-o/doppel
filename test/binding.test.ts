@@ -1,4 +1,4 @@
-import { reference } from '../src/reference';
+import { reference } from '../src/reference/reference.lazy';
 
 const REF = reference({
     message: 'hello world',

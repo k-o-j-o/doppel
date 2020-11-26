@@ -1,4 +1,4 @@
-import { reference, Reference } from "../src/reference"
+import { reference, LazyReference } from "../src/reference/reference.lazy"
 
 test('can subscribe to primitive changes', () => {
     const ref = reference({ 

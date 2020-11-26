@@ -33,10 +33,5 @@
   ],
   "jest": {
     "preset": "ts-jest"
-  },
-  "husky" : {
-    "hooks": {
-      "pre-push": "jest"
-    }
   }
 }

@@ -8,7 +8,7 @@ import {
     _descriptorFactory
 } from './util'
 
-export abstract class Reference<V> {
+export abstract class LazyReference<V> {
     #activateListeners: ((value: V) => void)[] = [];
     #changesInitListeners: (() => void)[] = [];
 
@@ -18,7 +18,7 @@ export abstract class Reference<V> {
 
     abstract readonly $reactiveValue: V;
 
-    abstract $bind(context: object, key: _Binding | string): Reference<V> & ReferenceMap<V>;
+    abstract $bind(context: object, key: _Binding | string): LazyReference<V> & ReferenceMap<V>;
 
     abstract _initChanges(): Observable<V>;
     abstract _triggerChanges(value: V): void;
@@ -67,7 +67,7 @@ export abstract class Reference<V> {
     }
 }
 
-class _ObjectReference<V extends object> extends Reference<V> {
+class LazyObjectReference<V extends object> extends LazyReference<V> {
     #subject: Subject<V>;
     #proxy: V;
 
@@ -100,7 +100,7 @@ class _ObjectReference<V extends object> extends Reference<V> {
             }
         });
 
-        return this as Reference<V>;
+        return this as LazyReference<V>;
     }
 
     _initChanges() {
@@ -114,7 +114,7 @@ class _ObjectReference<V extends object> extends Reference<V> {
     }
 }
 
-class _PrimitiveReference<V> extends Reference<V> {
+class LazyPrimitiveReference<V> extends LazyReference<V> {
     #subject: Subject<V>;
     #descriptor: PropertyDescriptor;
 
@@ -122,9 +122,13 @@ class _PrimitiveReference<V> extends Reference<V> {
         return this.$value;
     }
 
+    set $reactiveValue(value) {
+        this._triggerChanges(value);
+    }
+
     $bind(context: object, key: string) {
         Object.defineProperty(context, key, this.#descriptor || (this.#descriptor = _descriptorFactory.bind(this)()));
-        return this as Reference<V>;
+        return this as LazyReference<V>;
     }
 
     _initChanges() {
@@ -138,9 +142,9 @@ class _PrimitiveReference<V> extends Reference<V> {
     }
 }
 
-export function reference<V>(value: V): Reference<V> & ReferenceMap<V> {
+export function reference<V>(value: V): LazyReference<V> & ReferenceMap<V> {
     return (typeof value === 'object'
-        ? new _ObjectReference(value as any)
-        : new _PrimitiveReference(value)
-    ) as any as Reference<V> & ReferenceMap<V>
+        ? new LazyObjectReference(value as any)
+        : new LazyPrimitiveReference(value)
+    ) as any as LazyReference<V> & ReferenceMap<V>
 }

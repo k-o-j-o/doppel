@@ -1,18 +1,18 @@
-import { Reference, reference } from '.'
+import { LazyReference, reference } from './reference.lazy'
 
 export type ReferenceMap<Model> = Model extends object 
     ? { 
         readonly [Prop in keyof Model]: Model[Prop] extends object 
-            ? (ReferenceMap<Model[Prop]> & Reference<Model[Prop]>)
-            : Reference<Model[Prop]>
-    } : Reference<Model>
+            ? (ReferenceMap<Model[Prop]> & LazyReference<Model[Prop]>)
+            : LazyReference<Model[Prop]>
+    } : LazyReference<Model>
 
 export type _Binding = {
     value: string;
     refs: string;
 }
 
-export function _defineChildReference(this: Reference<any>, [ key, value ]: [string,any]) {
+export function _defineChildReference(this: LazyReference<any>, [ key, value ]: [string,any]) {
     const ref = reference(value);
     ref._onInitChanges(() => this._activate());
     ref._onActivate((reactiveValue) => Object.defineProperty(this.$value, key, {
@@ -36,17 +36,17 @@ export function _formatBinding(binding: _Binding | string): _Binding {
     }
 }
 
-export function _proxyFactory<V extends object>(this: Reference<V> & ReferenceMap<V>) {
+export function _proxyFactory<V extends object>(this: LazyReference<V> & ReferenceMap<V>) {
     const _this = this;
     return new Proxy(this.$value, {
         set(target, prop, newValue) {
-            (_this[prop] as Reference<any>)._triggerChanges(newValue)
+            (_this[prop] as LazyReference<any>)._triggerChanges(newValue)
             return true;
         }
     })
 }
 
-export function _descriptorFactory<V extends object>(this: Reference<V>): PropertyDescriptor {
+export function _descriptorFactory<V extends object>(this: LazyReference<V>): PropertyDescriptor {
     return {
         value: this.$value,
         set: this._triggerChanges
