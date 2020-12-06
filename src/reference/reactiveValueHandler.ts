@@ -1,9 +1,13 @@
-import { Reference } from "./reference";
+import { Reference } from "./Reference";
 import { Observable, Subject } from "rxjs";
 
-const PROXY_HANDLER: Symbol = Symbol('proxyHandler');
+export const REFERENCE: unique symbol = Symbol('reference');
 
-abstract class ReactiveValueHandler<M> {
+export function isReactive(value: any) {
+    return !!value[REFERENCE];
+}
+
+export abstract class ReactiveValueHandler<M> {
     constructor(
         protected ref: Reference<M>
     ) { }
@@ -13,13 +17,19 @@ abstract class ReactiveValueHandler<M> {
 
     abstract get(): M;
     abstract set(value: M): boolean;
+
+    static create<M>(ref: Reference<M>): ReactiveValueHandler<M> {
+        if (typeof ref.$value !== 'object') return new PrimitiveValueHandler(ref);
+        else if (Array.isArray(ref.$value)) return new ArrayValueHandler(ref as Reference<any>);
+        else return new ObjectValueHandler(ref as Reference<any>);
+    }
 }
 
 class ObjectValueHandler<M extends object> extends ReactiveValueHandler<M> {
     #proxy: M;
     #handler: ProxyHandler<M> = {
         get: (_, key) => {
-            if (key === PROXY_HANDLER) return this.#handler;
+            if (key === REFERENCE) return this.ref;
             else return this.ref[key].$reactiveValue;
         },
         set: (_, key, value) => {
@@ -28,16 +38,31 @@ class ObjectValueHandler<M extends object> extends ReactiveValueHandler<M> {
         }
     }
 
+    constructor(ref: Reference<M>) {
+        super(ref);
+        Object.entries(ref.$value)
+            .forEach(this.defineChildReference);
+    }
+
     get() {
         return this.#proxy ?? (this.#proxy = this.createProxy())
     }
 
     set(newValue) {
-
+        //TODO
+        return true;
+    }
+    
+    private defineChildReference([ key, value ]: [string, object]) {
+        Object.defineProperty(this.ref, key, {
+            value: Reference.create(value),
+            writable: true,
+            enumerable: true
+        });
     }
 
-    private createProxy(): {
-
+    private createProxy(): M {
+        return new Proxy(this.ref.$value, this.#handler);
     }
 }
 
