@@ -82,7 +82,7 @@ export class Reference<M> {
 
     public static create<M>(value: M): Reference<M> {
         if (isReactive(value)) {
-            return value[REFERENCE].$readonly; //If the value
+            return value[REFERENCE].$readonly;
         } else {
             return new Reference(value);
         }

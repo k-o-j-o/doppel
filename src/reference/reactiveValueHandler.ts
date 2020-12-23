@@ -34,7 +34,7 @@ class ObjectValueHandler<M extends object> extends ReactiveValueHandler<M> {
         },
         set: (_, key, value) => {
             this.ref[key].$reactiveValue = value;
-            return true
+            return true;
         }
     }
 
@@ -45,7 +45,7 @@ class ObjectValueHandler<M extends object> extends ReactiveValueHandler<M> {
     }
 
     get() {
-        return this.#proxy ?? (this.#proxy = this.createProxy())
+        return this.#proxy ?? (this.#proxy = new Proxy(this.ref.$value, this.#handler))
     }
 
     set(newValue) {
@@ -59,10 +59,6 @@ class ObjectValueHandler<M extends object> extends ReactiveValueHandler<M> {
             writable: true,
             enumerable: true
         });
-    }
-
-    private createProxy(): M {
-        return new Proxy(this.ref.$value, this.#handler);
     }
 }
 
