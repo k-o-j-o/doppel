@@ -1,8 +1,14 @@
 {
     "compilerOptions": {
-        "outDir": "dist",
         "target": "es2015",
         "moduleResolution": "node",
-        "noImplicitThis": true
-    }
+        "noImplicitThis": true,
+        "baseUrl": "./",
+        "paths": {
+            "@common": ["src/common.ts"],
+            "@store": ["src/store/index.ts"],
+            "@reference": ["src/reference/index.ts"]
+        }
+    },
+    "exclude": ["deprecated", "dist", "node_modules", "test"]
 }
