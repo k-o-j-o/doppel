@@ -3,24 +3,24 @@ import { Store } from "../src/store"
 describe('store creation', () => {
     test('throws on primitives', () => {
         expect(() => {
-            Store.create(0 as any);
+            Store.use(0 as any);
         }).toThrow();
     });
     
     test('throws on null or undefined', () => {
         expect(() => {
-            Store.create(null);
+            Store.use(null);
         }).toThrow()
     });
     
     test('throws on arrays', () => {
         expect(() => {
-            Store.create([] as any);
+            Store.use([] as any);
         }).toThrow()
     });
     
     test('maps primitives', () => {
-        const store = Store.create({
+        const store = Store.use({
             string: "string",
             boolean: true,
             number: 0,
@@ -42,7 +42,7 @@ describe('store creation', () => {
     });
 
     test('maps arrays', () => {
-        const store = Store.create({
+        const store = Store.use({
             array: [{ message: "hello" }]
         });
 
@@ -56,7 +56,7 @@ describe('store creation', () => {
     })
 
     test('maps objects', () => {
-        const store = Store.create({
+        const store = Store.use({
             user: {
                 first: "Rick",
                 last: "Sanchez"
@@ -75,7 +75,7 @@ describe('store creation', () => {
     });
 
     test('maps nested objects', () => {
-        const store = Store.create({
+        const store = Store.use({
             user: {
                 name: {
                     first: "Rick",
@@ -100,8 +100,8 @@ describe('store creation', () => {
 
     test('returns singleton', () => {
         const data = { message: "hello" };
-        const store = Store.create(data);
-        const storeCopy = Store.create(data);
+        const store = Store.use(data);
+        const storeCopy = Store.use(data);
         
         expect(store).toBe(storeCopy);
     })
