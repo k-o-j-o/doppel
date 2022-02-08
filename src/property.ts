@@ -4,11 +4,11 @@ export class Property<T> {
   #subject: Subject<T>;
 
   protected constructor(
-    public value: T
+    public state: T
   ) { }
 
   public set(value: T) {
-    this.value = value;
+    this.state = value;
     this.#subject?.next(value);
   }
 

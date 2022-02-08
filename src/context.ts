@@ -1,4 +1,4 @@
-//TODO: do I want it to be possible for multiple contexts to exist?
+//TODO: should it be possible for multiple contexts to exist?
 export class Context {
   #updateTimeout: ReturnType<typeof setTimeout> | null;
 
@@ -13,7 +13,13 @@ export class Context {
   }
 
   #update() {
-
+    this.actions
+      .filter(({ type }) => type === 'set')
+      .forEach(({ key }) => {
+        this.effects
+          .filter(({ keys }) => keys[key])
+          .forEach((effect) => effect.call());
+      });
   }
 }
 
