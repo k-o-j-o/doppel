@@ -1,8 +1,10 @@
+import { Property } from './property';
+
 //TODO: should it be possible for multiple contexts to exist?
 export class Context {
-  #updateTimeout: ReturnType<typeof setTimeout> | null;
+  #updateTimeout?: ReturnType<typeof setTimeout>;
 
-  actions: Array<Action<any>>;
+  actions: Array<Action>;
   effects: Array<Effect>;
 
   public static INSTANCE = new Context();
@@ -13,49 +15,51 @@ export class Context {
   }
 
   #update() {
+    //TODO: this is incredibly inefficient
     this.actions
       .filter(({ type }) => type === 'set')
-      .forEach(({ key }) => {
+      .forEach(({ property }) => {
         this.effects
-          .filter(({ keys }) => keys[key])
-          .forEach((effect) => effect.call());
+          .filter(({ dependencies }) => dependencies.includes(property))
+          .forEach((effect) => effect.trigger());
       });
+    this.#updateTimeout = undefined;
   }
 }
 
-class Action<T = any> {
+export class Action<T = any> {
   private constructor(
-    public type: 'get' | 'set' | 'delete',
-    public key: string | symbol,
-    public value: T
+    public readonly type: 'get' | 'set' | 'delete',
+    public readonly property: Property,
+    public readonly value: T
   ) { }
 
-  public static get<T>(key: string | symbol, value: T): Action<T> & { type: 'get' } {
-    return new Action('get', key, value) as Action<T> & { type: 'get' };
+  public static get<T>(property: Property, value: T) {
+    return new Action('get', property, value) as Action<T> & { type: 'get' };
   }
 
-  public static set<T>(key: string | symbol, value: T): Action<T> & { type: 'set' } {
-    return new Action('set', key, value) as Action<T> & { type: 'set' };
+  public static set<T>(property: Property, value: T) {
+    return new Action('set', property, value) as Action<T> & { type: 'set' };
   }
 
-  public static delete<T>(key: string | symbol, value: T): Action<T> & { type: 'delete' } {
-    return new Action('delete', key, value) as Action<T> & { type: 'delete' };
+  public static delete<T>(property: Property, value: T) {
+    return new Action('delete', property, value) as Action<T> & { type: 'delete' };
   }
 }
 
 class Effect {
   private constructor(
-    public call: Function,
-    public keys: Array<string | symbol> = []
+    public readonly trigger: Function,
+    public readonly dependencies: Array<Property> = []
   ) { }
 
-  public static create(op: Function) {
-    const effect = new Effect(op);
+  public static register(func: Function) {
+    const effect = new Effect(func);
     setTimeout(() => {
-      op();
+      func();
       Context.INSTANCE.actions
         .filter(({ type }) => type === 'get')
-        .forEach(({ key }) => effect.keys.push(key))
+        .forEach(({ property }) => effect.dependencies.push(property))
     });
   }
 }
