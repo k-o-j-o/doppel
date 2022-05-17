@@ -1,14 +1,20 @@
 {
     "compilerOptions": {
-        "target": "es2015",
+        "experimentalDecorators": true,
+        "target": "esnext",
         "moduleResolution": "node",
         "noImplicitThis": true,
+        "useDefineForClassFields": true,
         "baseUrl": "./",
         "paths": {
-            "@common": ["src/common.ts"],
-            "@store": ["src/store/index.ts"],
-            "@reference": ["src/reference/index.ts"]
+            "@/*": [
+                "./src/*"
+            ]
         }
     },
-    "exclude": ["deprecated", "dist", "node_modules", "test"]
+    "exclude": [
+        "deprecated",
+        "dist",
+        "node_modules"
+    ]
 }

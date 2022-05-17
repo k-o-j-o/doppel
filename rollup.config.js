@@ -1,36 +1,27 @@
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import alias from '@rollup/plugin-alias';
+import replace from '@rollup/plugin-replace';
 import pkg from './package.json';
 
 export default [{
     input: './src/index.ts',
-    output: {
-        name: 'doppel',
-        file: pkg.browser,
-        format: 'umd'
-    },
     plugins: [
         alias({
-            '@common': 'src/common.ts',
-            '@store': 'src/store/index.ts',
-            '@reference': 'src/reference/index.ts'
+            '@/': './src/'
         }),
         resolve(),
-        commonjs(),
-        typescript()
-    ],
-    external: [ "rxjs" ]
-}, {
-    input: './src/index.ts',
-    plugins: [
-        alias({
-            '@common': 'src/common.ts',
-            '@store': 'src/store/index.ts',
-            '@reference': 'src/reference/index.ts'
+        typescript({
+            tsconfig: './tsconfig.json'
         }),
-        typescript()
+        replace({
+            values: {
+                //TODO: this isn't a great way to do this; result is what the build assigns to the import from 'symbol-observable'
+                'Symbol.observable': 'result'
+            },
+            include: ['src/**/*.js'],
+            preventAssignment: true
+        })
     ],
     output: [{
         file: pkg.main,
@@ -38,6 +29,5 @@ export default [{
     }, {
         file: pkg.module,
         format: 'es'
-    }],
-    external: [ "rxjs" ]
+    }]
 }];
