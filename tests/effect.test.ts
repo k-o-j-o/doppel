@@ -38,7 +38,7 @@ describe('effect', () => {
     expect(values).toEqual([0, 'string', true]);
   });
 
-  test('queues invocations by default', () => {
+  test('queues invocations by default', (done) => {
     const ref = Reference.from(0);
     const values = [];
     Effect.register(() => values.push(ref.value));
@@ -48,10 +48,11 @@ describe('effect', () => {
     expect(values).toEqual([0]);
     setTimeout(() => {
       expect(values).toEqual([0, 2]);
+      done();
     });
   });
 
-  test('can use custom scheduler', () => {
+  test('can use custom scheduler', (done) => {
     const ref = Reference.from(0);
     const values = [];
     Effect.register(() => values.push(ref.value), Schedule.Sync);
@@ -60,6 +61,7 @@ describe('effect', () => {
     expect(values).toEqual([0, 1, 2]);
     setTimeout(() => {
       expect(values).toEqual([0, 1, 2]);
+      done();
     })
   });
 

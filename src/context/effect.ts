@@ -1,9 +1,8 @@
 import type { Reference } from "@/reference";
 import { pushContext, popContext } from "@/context/stack";
+import { SubscriptionManager } from "@/common/subscription-manager";
 
 export class Effect<T = unknown> {
-  #subscriptions = new WeakMap<Reference, Subscription>();
-
   public isScheduled: boolean = false;
   public dependencies: Array<Reference>;
   public invoke: () => T;
@@ -12,6 +11,7 @@ export class Effect<T = unknown> {
     protected func: () => T,
     protected scheduler: (callback: () => T) => any = Schedule.Queue
   ) {
+    SubscriptionManager.init(this, () => this.schedule());
     Object.defineProperty(this, 'invoke', {
       value: func
     });
@@ -50,10 +50,7 @@ export class Effect<T = unknown> {
   public addDependency(dep: Reference) {
     if (!this.dependencies.includes(dep)) {
       this.dependencies.push(dep);
-      this.#subscriptions.set(dep, dep.subscribe({
-        next: () => this.schedule(),
-        complete: () => this.removeDependency(dep)
-      }));
+      SubscriptionManager.for(this).subscribeTo(dep);
     }
   }
 
@@ -61,7 +58,7 @@ export class Effect<T = unknown> {
     const index = this.dependencies.indexOf(dep);
     if (index > -1) {
       this.dependencies.splice(index, 1);
-      this.#subscriptions.get(dep)?.unsubscribe();
+      SubscriptionManager.for(this).unsubscribeFrom(dep);
     }
   }
 
@@ -81,7 +78,7 @@ function _invoker(this: Effect) {
   pushContext([]);
   const result = this.func();
   for (let action of popContext()) {
-    this.addDependency(action.target);
+    this.addDependency(action.ref);
   }
   return result;
 }

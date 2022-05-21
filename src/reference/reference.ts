@@ -1,7 +1,7 @@
-import { MulticastHandler, $Handler } from "@/multicast-handler";
+import { MulticastHandler, $Handler } from "@/common/multicast-handler";
 import { Action, pushContext, popContext } from '@/context';
-import { isObservable } from "@/util";
-import { AdaptedReference } from "@/reference/adapted-reference";
+import { isObservable } from "@/common/util";
+// import { AdaptedReference } from "@/reference/adapted-reference";
 
 export const $Value = Symbol('value');
 
@@ -35,7 +35,7 @@ export class Reference<T = unknown> {
       const observable = value[Symbol.observable]();
 
       if (observable.hasOwnProperty($Value)) return observable;
-      else return new AdaptedReference(observable)
+      // else return new AdaptedReference(observable)
     }
   }
 
@@ -52,13 +52,13 @@ function _for(...values) {
   if (values.length > 1) {
     const refs: Array<Reference> = [];
     for (let i = 0; i < context.length; i++) {
-      if (context[i].target !== context[i + 1]?.source) {
-        refs.push(context[i].target);
+      if (context[i].ref !== context[i + 1]?.parent) {
+        refs.push(context[i].ref);
       }
     }
     return refs;
   } else {
-    return context[context.length - 1].target;
+    return context[context.length - 1].ref;
   }
 }
 export interface Reference<T = unknown> extends ObservableLike<T> { }

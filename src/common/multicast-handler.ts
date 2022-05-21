@@ -1,4 +1,4 @@
-import { noop } from "./util";
+import { noop } from "@/common/util";
 
 export class MulticastHandler<T> {
   public observers: SubscriptionObserver<T>[] = [];
