@@ -1,5 +1,6 @@
 import type { Reference } from "@/reference";
-import { pushContext, popContext } from "@/context/stack";
+import { Schedule } from "@/effect/schedule";
+import { pushContext, popContext } from "@/common/context";
 import { SubscriptionManager } from "@/common/subscription-manager";
 
 export class Effect<T = unknown> {
@@ -68,11 +69,6 @@ export class Effect<T = unknown> {
     return effect;
   }
 }
-
-export const Schedule = {
-  Sync: (callback) => void callback(),
-  Queue: queueMicrotask
-};
 
 function _invoker(this: Effect) {
   pushContext([]);

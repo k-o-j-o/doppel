@@ -1,5 +1,6 @@
 import { MulticastHandler, $Handler } from "@/common/multicast-handler";
-import { Action, pushContext, popContext } from '@/context';
+import { Action } from "@/common/action"
+import { pushContext, popContext } from '@/common/context';
 import { isObservable } from "@/common/util";
 // import { AdaptedReference } from "@/reference/adapted-reference";
 
@@ -61,4 +62,4 @@ function _for(...values) {
     return context[context.length - 1].ref;
   }
 }
-export interface Reference<T = unknown> extends ObservableLike<T> { }
+export interface Reference<T> extends ObservableLike<T> { }

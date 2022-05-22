@@ -1,4 +1,4 @@
-import type { Action } from '@/context/action';
+import type { Action } from '@/common/action';
 type Context = Array<Action>;
 
 export const CONTEXT_STACK: Array<Context> = [];

@@ -1,2 +1,2 @@
 export * from './reference';
-export * from './adapted-reference';
+export * from './adapted';

@@ -1,5 +1,5 @@
 import { Reference, $Value } from '@/reference';
-import { currentContext } from '@/context/stack';
+import { currentContext } from '@/common/context';
 import { Reactive } from '@/reactive';
 
 export class Action<T extends ActionType = any, V = unknown> {

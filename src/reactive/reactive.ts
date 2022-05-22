@@ -1,6 +1,6 @@
 import { MulticastHandler, $Handler } from "@/common/multicast-handler";
 import { Reference, AdaptedReference, $Value } from "@/reference";
-import { Action, pushContext } from "@/context";
+import { Action } from "@/common/action";
 import { isObject, isObservable } from "@/common/util";
 import { SubscriptionManager } from "@/common/subscription-manager";
 
@@ -45,7 +45,7 @@ export class Reactive<T extends object = Record<PropertyKey, unknown>> implement
     }
   }
 }
-export interface Reactive<T extends object = Record<PropertyKey, unknown>> extends Reference<T> { }
+export interface Reactive<T> extends Reference<T> { }
 
 function _getProxyFor<T extends object>(reactive: Reactive<T>, value: T) {
   //TODO: this doesn't take into account if value already belongs to a reactive object

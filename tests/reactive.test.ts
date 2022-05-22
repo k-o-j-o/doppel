@@ -67,6 +67,7 @@ describe('reactive', () => {
                 lastName: "Sanchez"
             }
         };
+
         const next = jest.fn();
         const reactive = Reactive.from(state);
         state[Symbol.observable]().subscribe(next);
@@ -91,7 +92,7 @@ describe('reactive', () => {
             }
         });
 
-        const next = jest.fn((value) => console.log(value));
+        const next = jest.fn();
         reactive.subscribe(next);
 
         reactive.value.user.firstName = "Morty";
