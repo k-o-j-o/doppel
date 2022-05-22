@@ -15,12 +15,12 @@ export class Reference<T = unknown> {
   }
 
   public get value() {
-    Action.read(null, this);
+    Action.read(this);
     return this[$Value];
   }
 
   public set value(value: T) {
-    Action.write(null, this, value);
+    Action.write(this, value);
     this[$Value] = value;
     this[$Handler].next(value);
   }

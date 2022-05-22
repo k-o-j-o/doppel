@@ -47,10 +47,14 @@ export class Reactive<T extends object = Record<PropertyKey, unknown>> implement
 }
 export interface Reactive<T extends object = Record<PropertyKey, unknown>> extends Reference<T> { }
 
-function _getProxyFor<T extends object>(reactive: Reactive<T>, value: UnwrapRefs<T> | T) {
+function _getProxyFor<T extends object>(reactive: Reactive<T>, value: T) {
   //TODO: this doesn't take into account if value already belongs to a reactive object
   return new Proxy(
-    Object.defineProperty(value, Symbol.observable, { value: reactive, configurable: true }),
+    Object.defineProperty(
+      value, 
+      Symbol.observable, 
+      { value: reactive[Symbol.observable].bind(reactive), configurable: true }
+    ),
     PROXY_HANDLER
   );
 }
@@ -66,7 +70,7 @@ const PROXY_HANDLER: ProxyHandler<any> = {
     const reactive = state[Symbol.observable]() as Reactive;
     const reference = (reactive[$References][key] || _initChildReference(reactive, key, state[key]));
     Action.writeChild(reactive, reference, value);
-    state[key] = value.newValue;
+    state[key] = value;
     reference.value = value;
     return true;
   },
@@ -88,11 +92,12 @@ function _initChildReference(reactive: Reactive, key: PropertyKey, value: any) {
 
 type UnwrappedRef<T> = T extends Reference<infer V> ? V : T;
 type UnwrapRefs<T extends object> = {
-  [prop in keyof T]: UnwrappedRef<T[prop]>
+  [prop in keyof T]: T[prop] extends object 
+    ? T[prop] extends Reference<infer T1> ? T1 : UnwrapRefs<T[prop]>
+    : T[prop]
 };
 
 class Mutation<T = unknown> {
-
   public constructor(
     public oldValue: T,
     public newValue: T
