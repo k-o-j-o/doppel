@@ -1,8 +1,8 @@
-import { Reactive, Reference } from '@/index';
+import { Reactive, Ref } from '@/index';
 
 describe('reactive', () => {
     test('can create with Reactive.from', () => {
-        expect(() => Reactive.from({ 
+        expect(() => Reactive.from({
             user: {
                 firstName: "Rick",
                 lastName: "Sanchez"
@@ -21,7 +21,7 @@ describe('reactive', () => {
     });
     //TODO: duplicating subscribe tests with reference is probably unnecessary and a multicast handler test should be created
     test('is subscribable with function', () => {
-        const reactive = Reactive.from({ 
+        const reactive = Reactive.from({
             user: {
                 firstName: "Rick",
                 lastName: "Sanchez"
@@ -76,7 +76,7 @@ describe('reactive', () => {
             lastName: "Smith"
         };
 
-        expect(next).toBeCalledWith({ 
+        expect(next).toBeCalledWith({
             user: {
                 firstName: "Morty",
                 lastName: "Smith"
@@ -112,8 +112,8 @@ describe('reactive', () => {
     });
 
     test('unwraps child references', () => {
-        const $firstName = Reference.from("Rick");
-        const $lastName = Reference.from("Sanchez");
+        const $firstName = Ref.from("Rick");
+        const $lastName = Ref.from("Sanchez");
         const reactive = Reactive.from({
             user: {
                 firstName: $firstName,
@@ -124,10 +124,10 @@ describe('reactive', () => {
         expect(reactive.value.user.firstName).toEqual("Rick");
         expect(reactive.value.user.lastName).toEqual("Sanchez");
     });
-    
+
     test('triggers child refs\' subscribers', () => {
-        const $firstName = Reference.from("Rick");
-        const $lastName = Reference.from("Sanchez");
+        const $firstName = Ref.from("Rick");
+        const $lastName = Ref.from("Sanchez");
         const reactive = Reactive.from({
             user: {
                 firstName: $firstName,

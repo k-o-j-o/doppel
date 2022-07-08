@@ -1,11 +1,11 @@
-import type { Reference } from "@/reference";
+import type { Ref } from "@/ref";
 import { Schedule } from "@/effect/schedule";
 import { pushContext, popContext } from "@/common/context";
 import { SubscriptionManager } from "@/common/subscription-manager";
 
 export class Effect<T = unknown> {
   public isScheduled: boolean = false;
-  public dependencies: Array<Reference>;
+  public dependencies: Array<Ref>;
   public invoke: () => T;
 
   constructor(
@@ -48,14 +48,14 @@ export class Effect<T = unknown> {
     }
   }
 
-  public addDependency(dep: Reference) {
+  public addDependency(dep: Ref) {
     if (!this.dependencies.includes(dep)) {
       this.dependencies.push(dep);
       SubscriptionManager.for(this).subscribeTo(dep);
     }
   }
 
-  public removeDependency(dep: Reference) {
+  public removeDependency(dep: Ref) {
     const index = this.dependencies.indexOf(dep);
     if (index > -1) {
       this.dependencies.splice(index, 1);

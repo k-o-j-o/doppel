@@ -1,8 +1,8 @@
-import { Reference } from '@/index';
+import { Ref } from '@/index';
 
 describe('reference', () => {
   test('is subscribable with function', () => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
 
     const next = jest.fn();
     ref.subscribe(next);
@@ -12,7 +12,7 @@ describe('reference', () => {
   });
 
   test('is subscribable with observer', () => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
 
     const next = jest.fn();
     ref.subscribe({ next });
@@ -22,7 +22,7 @@ describe('reference', () => {
   });
 
   test('can unsubscribe', () => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
 
     const next = jest.fn();
     const subscription = ref.subscribe(next);
@@ -38,7 +38,7 @@ describe('reference', () => {
   });
 
   test('multicasts to subscribers', () => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
 
     const next1 = jest.fn();
     const subscription1 = ref.subscribe(next1);
@@ -60,7 +60,7 @@ describe('reference', () => {
   });
 
   test('subscriber order is honored', () => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
 
     const values = [];
     const next1 = jest.fn(() => values.push(1));
@@ -80,31 +80,31 @@ describe('reference', () => {
   });
 
   test('from returns same instance', () => {
-    const ref1 = Reference.from(0);
-    const ref2 = Reference.from(ref1);
+    const ref1 = Ref.from(0);
+    const ref2 = Ref.from(ref1);
 
     expect(ref1).toBe(ref2);
   });
 
   test('for returns same instance', () => {
-    const ref1 = Reference.from(0);
-    const ref2 = Reference.for(ref1.value);
+    const ref1 = Ref.from(0);
+    const ref2 = Ref.for(ref1.value);
 
     expect(ref1).toBe(ref2);
   });
 
   test('for works for arrays', () => {
-    const ref1 = Reference.from(0);
-    const ref2 = Reference.from('string');
-    const ref3 = Reference.from(true);
+    const ref1 = Ref.from(0);
+    const ref2 = Ref.from('string');
+    const ref3 = Ref.from(true);
 
-    const references = Reference.for(ref1.value, ref2.value, ref3.value);
+    const references = Ref.for(ref1.value, ref2.value, ref3.value);
     expect(references).toEqual(expect.arrayContaining([ref1, ref2, ref3]));
     expect(references.length).toEqual(3);
   });
 
   test('value synchronously tracks updates', () => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
     ref.value++;
     expect(ref.value).toEqual(1);
   });

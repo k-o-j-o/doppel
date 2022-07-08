@@ -1,4 +1,4 @@
-import { Reference, Effect, Schedule } from '@/index';
+import { Ref, Effect, Schedule } from '@/index';
 
 describe('effect', () => {
   test('does not run until register is called', () => {
@@ -24,9 +24,9 @@ describe('effect', () => {
   });
 
   test('tracks dependencies', () => {
-    const ref1 = Reference.from(0);
-    const ref2 = Reference.from('string');
-    const ref3 = Reference.from(true);
+    const ref1 = Ref.from(0);
+    const ref2 = Ref.from('string');
+    const ref3 = Ref.from(true);
     const values = [];
     const effect = Effect.register(() => {
       values.push(ref1.value);
@@ -39,7 +39,7 @@ describe('effect', () => {
   });
 
   test('queues invocations by default', (done) => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
     const values = [];
     Effect.register(() => values.push(ref.value));
     ref.value++;
@@ -53,7 +53,7 @@ describe('effect', () => {
   });
 
   test('can use custom scheduler', (done) => {
-    const ref = Reference.from(0);
+    const ref = Ref.from(0);
     const values = [];
     Effect.register(() => values.push(ref.value), Schedule.Sync);
     ref.value++;
@@ -66,8 +66,8 @@ describe('effect', () => {
   });
 
   test('can add/remove dependencies', () => {
-    const ref1 = Reference.from(0);
-    const ref2 = Reference.from(1);
+    const ref1 = Ref.from(0);
+    const ref2 = Ref.from(1);
     const values = [];
     const func = jest.fn(() => values.push(ref1.value));
     const effect = Effect.register(func, Schedule.Sync);

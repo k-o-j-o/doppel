@@ -1,12 +1,12 @@
 import { MulticastHandler, $Handler } from '@/common/multicast-handler';
-import { Reference, $Value } from '@/reference';
+import { Ref, $Value } from '@/ref';
 import { Effect, Schedule } from '@/effect';
 import { noop } from '@/common/util';
 
 export const $Effect = Symbol('effect');
 
 @MulticastHandler.Observable
-export class Derived<T = unknown> implements Reference<T> {
+export class Derived<T = unknown> implements Ref<T> {
     [$Handler] = new MulticastHandler();
     [$Value]: T
     [$Effect]: Effect<T>
@@ -35,4 +35,4 @@ export class Derived<T = unknown> implements Reference<T> {
         return ref;
     }
 }
-export interface Derived<T> extends Reference<T> { }
+export interface Derived<T> extends Ref<T> { }

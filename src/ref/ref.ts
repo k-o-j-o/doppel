@@ -2,12 +2,11 @@ import { MulticastHandler, $Handler } from "@/common/multicast-handler";
 import { Action } from "@/common/action"
 import { pushContext, popContext } from '@/common/context';
 import { isObservable } from "@/common/util";
-// import { AdaptedReference } from "@/reference/adapted-reference";
 
 export const $Value = Symbol('value');
 
 @MulticastHandler.Observable
-export class Reference<T = unknown> {
+export class Ref<T = unknown> {
   [$Handler] = new MulticastHandler();
   [$Value]: T;
 
@@ -26,16 +25,16 @@ export class Reference<T = unknown> {
     this[$Handler].next(value);
   }
 
-  public static from<T>(ref: Reference<T>): Reference<T>
-  public static from<T>(observable: ObservableLike<T>): Readonly<Reference<T>>
-  public static from<T>(value: T): Reference<T>
+  public static from<T>(ref: Ref<T>): Ref<T>
+  public static from<T>(observable: ObservableLike<T>): Readonly<Ref<T>>
+  public static from<T>(value: T): Ref<T>
   public static from(value) {
     if (!isObservable(value)) {
-      return new Reference(value);
+      return new Ref(value);
     } else {
       const observable = value[Symbol.observable]();
 
-      if (observable.hasOwnProperty($Value)) return observable;
+      if (Ref.isRef(observable)) return observable;
       // else return new AdaptedReference(observable)
     }
   }
@@ -44,14 +43,18 @@ export class Reference<T = unknown> {
     pushContext([]);
     return _for;
   }
+
+  public static isRef(value): value is Ref {
+    return $Value in value;
+  }
 }
 
-function _for<T>(value: T): Reference<T>;
-function _for<T extends Array<unknown>>(...values: T): { [key in keyof T]: Reference<T[key]> };
+function _for<T>(value: T): Ref<T>;
+function _for<T extends Array<unknown>>(...values: T): { [key in keyof T]: Ref<T[key]> };
 function _for(...values) {
   const context = popContext();
   if (values.length > 1) {
-    const refs: Array<Reference> = [];
+    const refs: Array<Ref> = [];
     for (let i = 0; i < context.length; i++) {
       if (context[i].ref !== context[i + 1]?.parent) {
         refs.push(context[i].ref);
@@ -62,4 +65,4 @@ function _for(...values) {
     return context[context.length - 1].ref;
   }
 }
-export interface Reference<T> extends ObservableLike<T> { }
+export interface Ref<T> extends ObservableLike<T> { }

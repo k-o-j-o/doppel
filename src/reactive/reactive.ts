@@ -1,5 +1,5 @@
 import { MulticastHandler, $Handler } from "@/common/multicast-handler";
-import { Reference, AdaptedReference, $Value } from "@/reference";
+import { Ref, AdaptedReference, $Value } from "@/ref";
 import { Action } from "@/common/action";
 import { isObject, isObservable } from "@/common/util";
 import { SubscriptionManager } from "@/common/subscription-manager";
@@ -7,8 +7,8 @@ import { SubscriptionManager } from "@/common/subscription-manager";
 export const $References = Symbol('references');
 
 @MulticastHandler.Observable
-export class Reactive<T extends object = Record<PropertyKey, unknown>> implements Reference<T> {
-  [$References]: Record<PropertyKey, Reference> = {};
+export class Reactive<T extends object = Record<PropertyKey, unknown>> implements Ref<T> {
+  [$References]: Record<PropertyKey, Ref> = {};
   [$Handler] = new MulticastHandler();
   [$Value]: T;
 
@@ -29,13 +29,13 @@ export class Reactive<T extends object = Record<PropertyKey, unknown>> implement
   }
 
   public static from<T extends object>(value: T): Reactive<UnwrapRefs<T>>;
-  public static from<T>(observable: ObservableLike<T>): Readonly<Reference<T>>;
-  public static from<T>(ref: Reference<T>): Reference<T>;
-  public static from<T>(value: T): Reference<T>;
+  public static from<T>(observable: ObservableLike<T>): Readonly<Ref<T>>;
+  public static from<T>(ref: Ref<T>): Ref<T>;
+  public static from<T>(value: T): Ref<T>;
   public static from(value) {
     //TODO: refactor this to use Reference.from to avoid dependency on AdaptedReference
     if (!isObject(value)) {
-      return new Reference(value);
+      return new Ref(value);
     } else if (!isObservable(value)) {
       return new Reactive(value);
     } else {
@@ -45,14 +45,14 @@ export class Reactive<T extends object = Record<PropertyKey, unknown>> implement
     }
   }
 }
-export interface Reactive<T> extends Reference<T> { }
+export interface Reactive<T> extends Ref<T> { }
 
 function _getProxyFor<T extends object>(reactive: Reactive<T>, value: T) {
   //TODO: this doesn't take into account if value already belongs to a reactive object
   return new Proxy(
     Object.defineProperty(
-      value, 
-      Symbol.observable, 
+      value,
+      Symbol.observable,
       { value: reactive[Symbol.observable].bind(reactive), configurable: true }
     ),
     PROXY_HANDLER
@@ -90,11 +90,11 @@ function _initChildReference(reactive: Reactive, key: PropertyKey, value: any) {
   return child;
 }
 
-type UnwrappedRef<T> = T extends Reference<infer V> ? V : T;
+type UnwrappedRef<T> = T extends Ref<infer V> ? V : T;
 type UnwrapRefs<T extends object> = {
-  [prop in keyof T]: T[prop] extends object 
-    ? T[prop] extends Reference<infer T1> ? T1 : UnwrapRefs<T[prop]>
-    : T[prop]
+  [prop in keyof T]: T[prop] extends object
+  ? T[prop] extends Ref<infer T1> ? T1 : UnwrapRefs<T[prop]>
+  : T[prop]
 };
 
 class Mutation<T = unknown> {

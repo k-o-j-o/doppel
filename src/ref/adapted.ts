@@ -1,6 +1,6 @@
-import { Reference, $Value } from '@/reference/reference';
+import { Ref, $Value } from '@/ref/ref';
 
-export class AdaptedReference<T = unknown> extends Reference<T> {
+export class AdaptedReference<T = unknown> extends Ref<T> {
   constructor(observable: ObservableLike<T>) {
     super();
     observable.subscribe({
